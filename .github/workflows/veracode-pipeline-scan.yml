@@ -129,7 +129,7 @@ jobs:
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: veracode/github-actions-integration-helper@v0.1.9
+        uses: bnreplah/github-actions-integration-helper@Fedramp
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}

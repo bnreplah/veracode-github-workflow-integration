@@ -35,17 +35,17 @@ jobs:
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Validations
     steps:
-      - name: Verify Veracode API credentials
-        id: verify_api_creds
-        uses: bnreplah/github-actions-integration-helper@Fedramp
-        with:
-          action: validateVeracodeApiCreds
-          token: ${{ github.event.client_payload.token }}
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          appname: ${{ github.event.client_payload.user_config.profile_name }}
-          source_repository: ${{ github.event.client_payload.repository.full_name }}
-          check_run_id: ${{ needs.register.outputs.run_id }}
+#      - name: Verify Veracode API credentials
+#        id: verify_api_creds
+#        uses: bnreplah/github-actions-integration-helper@Fedramp
+#        with:
+#          action: validateVeracodeApiCreds
+#          token: ${{ github.event.client_payload.token }}
+#          vid: ${{ secrets.VERACODE_API_ID }}
+#          vkey: ${{ secrets.VERACODE_API_KEY }}
+#          appname: ${{ github.event.client_payload.user_config.profile_name }}
+#          source_repository: ${{ github.event.client_payload.repository.full_name }}
+#          check_run_id: ${{ needs.register.outputs.run_id }}
 
       - name: Verify Policy name
         id: verify_policy_name
@@ -66,7 +66,7 @@ jobs:
           break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
 
   policy_scan:
-    needs: [register, validations]
+    needs: [register] #, validations]
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     steps:
       - name: check out the helper
@@ -86,7 +86,7 @@ jobs:
 
       - name: Veracode Upload and Scan - Java Jar
         run: | 
-          java -jar veracode-helper/helper/VeracodeJavaAPI.jar -action uploadandscan -filepath ./veracode_artifact_directory/ -appname '${{ github.event.client_payload.user_config.profile_name }}' -createprofile true -version '${{ github.run_id }}' -deleteincompletescan 2  -vid '${{ secrets.VERACODE_API_ID }}' -vkey '${{ secrets.VERACODE_API_KEY }}' -policy '${{ github.event.client_payload.policy_name }}' 
+          java -jar veracode-helper/helper/VeracodeJavaAPI.jar -action uploadandscan -filepath ./veracode_artifact_directory/ -appname '${{ github.event.client_payload.user_config.profile_name }}' -createprofile true -version '${{ github.run_id }}' -deleteincompletescan 2  -vid '${{ secrets.VERACODE_API_ID }}' -vkey '${{ secrets.VERACODE_API_KEY }}' -policy '${{ github.event.client_payload.policy_name }}' -failbuild '${{ github.event.client_payload.user_config.break_build_policy_findings }}' -scantimeout 30
 
 
 

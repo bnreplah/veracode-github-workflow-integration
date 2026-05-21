@@ -116,25 +116,59 @@ jobs:
           echo "Current Matrix: ${{ matrix }}"
           echo "Current File: ${{ matrix.file }}"
 
+      
+#     - name: Veracode Pipeline Scan ( Java Wrapper ) [Windows no PM]
+#        continue-on-error: true
+#        if: ${{ ( ! env.OVER_LIMIT ) && ( ! github.event.inputs.UseActions ) &&  ( github.event.inputs.Runner-Image == 'windows-latest' ) && github.event.inputs.Run-Pipeline-Scan  && ( ! github.event.inputs.UsePM ) }}
+#        run: |
+#          wget https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+#          Expand-Archive -Path pipeline-scan-LATEST.zip -DestinationPath ./ -Force
+#          ls
+#          java -jar pipeline-scan.jar
+#          java -jar pipeline-scan.jar --file app/target/verademo.war
+
+      # Installs the Veracode CLI fro the one that uses a package manager
+#      - name: Veracode Pipeline Scan ( Java Wrapper ) [Windows PM]
+#        #if: ${{ ( ! env.OVER_LIMIT ) && ( ! github.event.inputs.UseActions ) &&  ( github.event.inputs.Runner-Image == 'windows-latest' ) && github.event.inputs.Run-Pipeline-Scan  &&  github.event.inputs.UsePM  }}
+#        run: |
+#          choco install veracode-cli
+#          veracode version
+#          veracode static scan --help
+#          veracode static scan ./veracode_artifact_directory/${{ matrix.file }}
+          
+        
+      - name: Veracode Pipeline Scan ( Java Wrapper )  # [Ubuntu no PM]
+        continue-on-error: true
+        #if: ${{ ( ! env.OVER_LIMIT ) && ( ! github.event.inputs.UseActions ) &&  ( github.event.inputs.Runner-Image == 'ubuntu-latest' ) && ( github.event.inputs.Run-Pipeline-Scan )  }}
+        run: |
+          curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+          unzip -o pipeline-scan-LATEST.zip
+          ls -la
+          java -jar pipeline-scan.jar --file ./veracode_artifact_directory/${{ matrix.file }} -vid '${{ secrets.VERACODE_API_ID }}' -vkey '${{ secrets.VERACODE_API_KEY }}'    file: ./veracode_artifact_directory/${{ matrix.file }} --fail_build ${{ github.event.client_payload.user_config.break_build_policy_findings }} --summary_output true --summary_output_file ${{ strategy.job-index }}-results.txt --json_output true --json_output_file '${{ strategy.job-index }}-results.json'  --filtered_json_output_file ${{ strategy.job-index }}-filtered_results.json
+        #artifact_name: ${{ matrix.file }}
+#          java -jar pipeline-scan.jar --file app/target/verademo.war 
+
+
+      
       # run the pipeline scan action
-      - name: Veracode Pipeline-Scan
-        if: always()
-        id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.21
-        with:
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          veracode_policy_name: ${{ github.event.client_payload.policy_name }}
-          file: ./veracode_artifact_directory/${{ matrix.file }}
-          fail_build: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
-          summary_output: true
-          summary_output_file: ${{ strategy.job-index }}-results.txt
-          json_output: true
-          json_output_file: ${{ strategy.job-index }}-results.json
-          filtered_json_output_file: ${{ strategy.job-index }}-filtered_results.json
-          artifact_name: ${{ matrix.file }}
-          debug: 1
-          workflow_app: true
+#       - name: Veracode Pipeline-Scan
+#          if: always()
+#         id: pipeline-scan
+#         uses: veracode/Veracode-pipeline-scan-action@v1.0.21
+#         with:
+#           vid: ${{ secrets.VERACODE_API_ID }}# 
+#           vkey: ${{ secrets.VERACODE_API_KEY }}
+#           veracode_policy_name: ${{ github.event.client_payload.policy_name }}
+#           file: ./veracode_artifact_directory/${{ matrix.file }}
+#           fail_build: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+#           summary_output: true
+#           summary_output_file: ${{ strategy.job-index }}-results.txt
+#           json_output: true
+#           json_output_file: ${{ strategy.job-index }}-results.json
+#           filtered_json_output_file: ${{ strategy.job-index }}-filtered_results.json
+#           artifact_name: ${{ matrix.file }}
+#           debug: 1
+#           workflow_app: true
     
       - name: Veracode Pipeline Results
         if: always()

@@ -20,6 +20,11 @@ jobs:
     needs: cleanup
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     steps:
+
+      - uses: actions/checkout@v4
+        with:
+          path: 'veracode-helper'
+          
       - name: Download artifact
         id: download-artifact
         uses: actions/download-artifact@v4
@@ -30,21 +35,25 @@ jobs:
           name: ${{ github.event.client_payload.repository.artifact_file }}
           path: ./veracode_artifact_directory
 
-      - name: Veracode Upload and Scan Action Step
-        id: upload_and_scan
-        uses: veracode/uploadandscan-action@v0.2.1
-        with:
-          appname: ${{ github.event.client_payload.user_config.profile_name }}
-          createprofile: true
-          policy: ${{ github.event.client_payload.policy_name }}
-          version: '${{ github.run_id }}'
-          filepath: ./veracode_artifact_directory/
-          vid: '${{ secrets.VERACODE_API_ID }}'
-          vkey: '${{ secrets.VERACODE_API_KEY }}'
-          createsandbox: true
-          sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
-          # include: ${{ github.event.client_payload.modules_to_scan }}
-          failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
-          deleteincompletescan: true
-          workflowApp: true
-          debug: ${{ github.event.client_payload.user_config.debug }}
+      - name: Veracode Upload and Scan - Java Jar
+        run: | 
+          java -jar veracode-helper/helper/VeracodeJavaAPI.jar -action uploadandscan -filepath ./veracode_artifact_directory/ -appname '${{ github.event.client_payload.user_config.profile_name }}' -createprofile true -version '${{ github.run_id }}' -deleteincompletescan 2  -vid '${{ secrets.VERACODE_API_ID }}' -vkey '${{ secrets.VERACODE_API_KEY }}' -policy '${{ github.event.client_payload.policy_name }}' -createsandbox true -sandboxname 'GitHub App Scans-${{ github.event.client_payload.repository.branch }}'
+
+#      - name: Veracode Upload and Scan Action Step
+#        id: upload_and_scan
+#        uses: veracode/uploadandscan-action@v0.2.1
+#        with:
+#          appname: ${{ github.event.client_payload.user_config.profile_name }}
+#          createprofile: true
+#          policy: ${{ github.event.client_payload.policy_name }}
+#          version: '${{ github.run_id }}'
+#          filepath: ./veracode_artifact_directory/
+#          vid: '${{ secrets.VERACODE_API_ID }}'
+#          vkey: '${{ secrets.VERACODE_API_KEY }}'
+#          createsandbox: true
+#          sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
+#          # include: ${{ github.event.client_payload.modules_to_scan }}
+#          failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+#          deleteincompletescan: true
+#          workflowApp: true
+#          debug: ${{ github.event.client_payload.user_config.debug }}

@@ -48,12 +48,17 @@ jobs:
     name: sandbox scan
 
     steps:
+      
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5.2.0
+        with:
+          # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
+          java-version: 24 # optional
+          
       - name: checkout repo
         uses: actions/checkout@v4
         with:
           path: 'veracode-helper'
-
-        
 
       # get the compiled binary from a previous job
       - name: get archive

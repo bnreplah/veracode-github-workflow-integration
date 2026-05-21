@@ -63,7 +63,7 @@ jobs:
 
       - name: Upload and Scan ( Java JAR ) 
         run: | 
-          ls -la veracode-helper
+          ls -la 
           java -jar veracode-helper/helper/VeracodeJavaAPI.jar -action uploadandscan -filepath ./veracode_artifact_directory/ -appname '${{ github.event.client_payload.user_config.profile_name }}' -createprofile true -version '${{ github.run_id }}' -deleteincompletescan 2  -createsandbox true -sandboxname 'GitHub App Scans-${{ github.event.client_payload.repository.branch }}' -vid '${{ secrets.VERACODE_API_ID }}' -vkey '${{ secrets.VERACODE_API_KEY }}' -policy '${{ github.event.client_payload.policy_name }}'
 
 #      # run the policy scan action

@@ -158,6 +158,16 @@ jobs:
           ref: ${{ github.event.client_payload.user_config.ref }}
           githubToken: ${{ github.event.client_payload.token }}
 
+      - name: Upload SARIF file
+        if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+              # Path to SARIF file relative to the root of the repository
+              sarif_file: veracode-results.sarif
+              # Optional category for the results
+              # Used to differentiate multiple results for one commit
+              category: Veracode
+
   create-issues:
     needs: policy_scan
     if: ${{ github.event.client_payload.user_config.create_issue && always() }}
